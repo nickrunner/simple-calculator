@@ -1,6 +1,4 @@
-### Issue #7 - 2025-08-07
-- Implemented power method in Calculator class
-- Method signature: power(base, exponent)
-- Uses Math.pow() for calculation
-- Handles all numeric inputs including negative and fractional exponents
-
+### Issue #10 - 2025-08-07
+- Added documentation comments for all calculator methods
+- Updated README.md to include power method in features and examples
+- Ensured documentation follows project standards from CLAUDE.md
