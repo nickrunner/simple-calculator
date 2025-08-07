@@ -78,9 +78,4 @@ power(base, exponent) {
 - Power function correctly calculates exponentiation
 - All tests pass including edge cases
 - Code follows existing patterns and style
-- No regression in existing functionality## Changes in Step 7
-- Added power method to Calculator class
-- Method accepts base and exponent parameters
-- Uses Math.pow() for calculation
-- Follows existing code patterns
-
+- No regression in existing functionality

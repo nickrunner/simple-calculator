@@ -18,6 +18,10 @@ class Calculator {
     }
     return a / b;
   }
+  
+  power(base, exponent) {
+    return Math.pow(base, exponent);
+  }
 }
 
 module.exports = Calculator;
