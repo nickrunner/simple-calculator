@@ -109,4 +109,9 @@ Add a JSDoc comment above the add method to document:
 ## Risk Assessment
 - **Risk Level**: Minimal
 - **Potential Issues**: None
-- **Testing Requirements**: Verify no syntax errors introduced
+- **Testing Requirements**: Verify no syntax errors introduced## Changes in Step 4
+- Added JSDoc comment to the add method in calculator.js
+- Comment includes method description, parameter types, and return type
+- No functional changes made to the code
+- Follows JavaScript/JSDoc best practices
+
