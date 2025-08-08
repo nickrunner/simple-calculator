@@ -33,6 +33,14 @@ class Calculator {
     
     return Math.pow(base, exponent);
   }
+  
+  // Calculates the remainder of a divided by b (a % b)
+  modulo(a, b) {
+    if (b === 0) {
+      throw new Error('Modulo by zero');
+    }
+    return a % b;
+  }
 }
 
 module.exports = Calculator;
