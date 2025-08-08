@@ -158,4 +158,180 @@ describe('Calculator', () => {
       });
     });
   });
+
+  describe('modulo method', () => {
+    describe('positive integers', () => {
+      test('should calculate 10 % 3 correctly', () => {
+        expect(calculator.modulo(10, 3)).toBe(1);
+      });
+
+      test('should calculate 15 % 4 correctly', () => {
+        expect(calculator.modulo(15, 4)).toBe(3);
+      });
+
+      test('should calculate 20 % 5 correctly', () => {
+        expect(calculator.modulo(20, 5)).toBe(0);
+      });
+
+      test('should calculate 7 % 2 correctly', () => {
+        expect(calculator.modulo(7, 2)).toBe(1);
+      });
+
+      test('should return 0 when dividend is divisible by divisor', () => {
+        expect(calculator.modulo(10, 2)).toBe(0);
+        expect(calculator.modulo(100, 10)).toBe(0);
+        expect(calculator.modulo(9, 3)).toBe(0);
+      });
+
+      test('should handle when dividend is smaller than divisor', () => {
+        expect(calculator.modulo(3, 5)).toBe(3);
+        expect(calculator.modulo(2, 10)).toBe(2);
+        expect(calculator.modulo(7, 8)).toBe(7);
+      });
+    });
+
+    describe('negative numbers', () => {
+      test('should handle negative dividend with positive divisor', () => {
+        expect(calculator.modulo(-10, 3)).toBe(-1);
+        expect(calculator.modulo(-15, 4)).toBe(-3);
+        expect(calculator.modulo(-7, 2)).toBe(-1);
+      });
+
+      test('should handle positive dividend with negative divisor', () => {
+        expect(calculator.modulo(10, -3)).toBe(1);
+        expect(calculator.modulo(15, -4)).toBe(3);
+        expect(calculator.modulo(7, -2)).toBe(1);
+      });
+
+      test('should handle both negative dividend and divisor', () => {
+        expect(calculator.modulo(-10, -3)).toBe(-1);
+        expect(calculator.modulo(-15, -4)).toBe(-3);
+        expect(calculator.modulo(-7, -2)).toBe(-1);
+      });
+
+      test('should return 0 for negative divisible numbers', () => {
+        expect(calculator.modulo(-10, 2)).toBe(-0);
+        expect(calculator.modulo(-100, -10)).toBe(-0);
+        expect(calculator.modulo(9, -3)).toBe(0);
+      });
+    });
+
+    describe('decimal/floating-point numbers', () => {
+      test('should handle decimal dividend', () => {
+        expect(calculator.modulo(10.5, 3)).toBeCloseTo(1.5, 10);
+        expect(calculator.modulo(15.7, 4)).toBeCloseTo(3.7, 10);
+        expect(calculator.modulo(7.5, 2)).toBeCloseTo(1.5, 10);
+      });
+
+      test('should handle decimal divisor', () => {
+        expect(calculator.modulo(10, 3.5)).toBeCloseTo(3, 10);
+        expect(calculator.modulo(15, 4.5)).toBeCloseTo(1.5, 10);
+        expect(calculator.modulo(7, 2.5)).toBeCloseTo(2, 10);
+      });
+
+      test('should handle both decimal dividend and divisor', () => {
+        expect(calculator.modulo(10.5, 3.5)).toBeCloseTo(0, 10);
+        expect(calculator.modulo(15.7, 4.2)).toBeCloseTo(3.1, 10);
+        expect(calculator.modulo(7.8, 2.3)).toBeCloseTo(0.9, 10);
+      });
+
+      test('should handle very small decimal numbers', () => {
+        expect(calculator.modulo(0.5, 0.2)).toBeCloseTo(0.1, 10);
+        expect(calculator.modulo(0.7, 0.3)).toBeCloseTo(0.1, 10);
+        expect(calculator.modulo(1.5, 0.4)).toBeCloseTo(0.3, 10);
+      });
+    });
+
+    describe('edge cases', () => {
+      test('should throw error for modulo by zero', () => {
+        expect(() => calculator.modulo(10, 0)).toThrow('Modulo by zero');
+        expect(() => calculator.modulo(-10, 0)).toThrow('Modulo by zero');
+        expect(() => calculator.modulo(0, 0)).toThrow('Modulo by zero');
+      });
+
+      test('should handle 0 as dividend', () => {
+        expect(calculator.modulo(0, 5)).toBe(0);
+        expect(calculator.modulo(0, -5)).toBe(0);
+        expect(calculator.modulo(0, 0.5)).toBe(0);
+      });
+
+      test('should handle modulo by 1', () => {
+        expect(calculator.modulo(10, 1)).toBe(0);
+        expect(calculator.modulo(5.7, 1)).toBeCloseTo(0.7, 10);
+        expect(calculator.modulo(-10, 1)).toBe(-0);
+      });
+
+      test('should handle modulo by -1', () => {
+        expect(calculator.modulo(10, -1)).toBe(0);
+        expect(calculator.modulo(5.7, -1)).toBeCloseTo(0.7, 10);
+        expect(calculator.modulo(-10, -1)).toBe(-0);
+      });
+
+      test('should handle very large numbers', () => {
+        expect(calculator.modulo(1e10, 7)).toBe(4);
+        expect(calculator.modulo(1e15, 13)).toBe(12);
+        expect(calculator.modulo(Number.MAX_SAFE_INTEGER, 10)).toBe(1);
+      });
+
+      test('should handle very small (close to zero) divisors', () => {
+        expect(calculator.modulo(1, 0.001)).toBeCloseTo(0.001, 5);
+        expect(calculator.modulo(1, 0.0001)).toBeCloseTo(0.0001, 4);
+        expect(calculator.modulo(0.5, 0.001)).toBeCloseTo(0.001, 4);
+      });
+
+      test('should handle Infinity', () => {
+        expect(calculator.modulo(10, Infinity)).toBe(10);
+        expect(calculator.modulo(Infinity, 10)).toBe(NaN);
+        expect(calculator.modulo(Infinity, Infinity)).toBe(NaN);
+      });
+
+      test('should handle NaN', () => {
+        expect(calculator.modulo(NaN, 10)).toBe(NaN);
+        expect(calculator.modulo(10, NaN)).toBe(NaN);
+        expect(calculator.modulo(NaN, NaN)).toBe(NaN);
+      });
+    });
+
+    describe('mathematical properties', () => {
+      test('(a + b) % c should equal ((a % c) + (b % c)) % c', () => {
+        const a = 17;
+        const b = 23;
+        const c = 7;
+        const result1 = calculator.modulo(a + b, c);
+        const result2 = calculator.modulo(calculator.modulo(a, c) + calculator.modulo(b, c), c);
+        expect(result1).toBe(result2);
+      });
+
+      test('a % b should always be less than |b| in magnitude', () => {
+        const testCases = [
+          [10, 3],
+          [-10, 3],
+          [10, -3],
+          [-10, -3],
+          [100, 7],
+          [5.5, 2.2]
+        ];
+
+        testCases.forEach(([a, b]) => {
+          const result = calculator.modulo(a, b);
+          expect(Math.abs(result)).toBeLessThan(Math.abs(b));
+        });
+      });
+
+      test('if a % b = r, then a = qb + r for some integer q', () => {
+        const testCases = [
+          [10, 3],
+          [15, 4],
+          [-10, 3],
+          [10, -3]
+        ];
+
+        testCases.forEach(([a, b]) => {
+          const r = calculator.modulo(a, b);
+          const q = Math.trunc(a / b);
+          expect(a).toBeCloseTo(q * b + r, 10);
+        });
+      });
+    });
+  });
 });
