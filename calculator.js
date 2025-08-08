@@ -18,6 +18,21 @@ class Calculator {
     }
     return a / b;
   }
+  
+  // Calculates a raised to the power of b (a^b)
+  power(base, exponent) {
+    // Handle special case: 0^0 returns 1 (common programming convention)
+    if (base === 0 && exponent === 0) {
+      return 1;
+    }
+    
+    // Check for complex number result (negative base with non-integer exponent)
+    if (base < 0 && !Number.isInteger(exponent)) {
+      throw new Error('Negative base with non-integer exponent results in complex number');
+    }
+    
+    return Math.pow(base, exponent);
+  }
 }
 
 module.exports = Calculator;
