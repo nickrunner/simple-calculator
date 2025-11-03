@@ -159,6 +159,185 @@ describe('Calculator', () => {
     });
   });
 
+  describe('integrate method', () => {
+    describe('basic polynomial functions', () => {
+      test('should integrate constant function (f(x) = 1) from 0 to 1', () => {
+        const result = calculator.integrate((x) => 1, 0, 1);
+        expect(result).toBeCloseTo(1, 3);
+      });
+
+      test('should integrate linear function (f(x) = x) from 0 to 1', () => {
+        // ∫[0,1] x dx = 0.5
+        const result = calculator.integrate((x) => x, 0, 1);
+        expect(result).toBeCloseTo(0.5, 3);
+      });
+
+      test('should integrate quadratic function (f(x) = x²) from 0 to 1', () => {
+        // ∫[0,1] x² dx = 1/3
+        const result = calculator.integrate((x) => x * x, 0, 1);
+        expect(result).toBeCloseTo(1/3, 3);
+      });
+
+      test('should integrate cubic function (f(x) = x³) from 0 to 2', () => {
+        // ∫[0,2] x³ dx = 4
+        const result = calculator.integrate((x) => x * x * x, 0, 2);
+        expect(result).toBeCloseTo(4, 3);
+      });
+    });
+
+    describe('trigonometric functions', () => {
+      test('should integrate sin(x) from 0 to π', () => {
+        // ∫[0,π] sin(x) dx = 2
+        const result = calculator.integrate(Math.sin, 0, Math.PI);
+        expect(result).toBeCloseTo(2, 3);
+      });
+
+      test('should integrate cos(x) from 0 to π/2', () => {
+        // ∫[0,π/2] cos(x) dx = 1
+        const result = calculator.integrate(Math.cos, 0, Math.PI / 2);
+        expect(result).toBeCloseTo(1, 3);
+      });
+
+      test('should integrate sin(x) from 0 to 2π', () => {
+        // ∫[0,2π] sin(x) dx = 0
+        const result = calculator.integrate(Math.sin, 0, 2 * Math.PI);
+        expect(result).toBeCloseTo(0, 2);
+      });
+    });
+
+    describe('exponential functions', () => {
+      test('should integrate e^x from 0 to 1', () => {
+        // ∫[0,1] e^x dx = e - 1 ≈ 1.718
+        const result = calculator.integrate(Math.exp, 0, 1);
+        expect(result).toBeCloseTo(Math.E - 1, 3);
+      });
+
+      test('should integrate e^x from -1 to 1', () => {
+        // ∫[-1,1] e^x dx = e - e^(-1) ≈ 2.350
+        const result = calculator.integrate(Math.exp, -1, 1);
+        expect(result).toBeCloseTo(Math.E - Math.exp(-1), 3);
+      });
+    });
+
+    describe('edge cases', () => {
+      test('should return 0 when bounds are equal', () => {
+        const result = calculator.integrate((x) => x * x, 5, 5);
+        expect(result).toBe(0);
+      });
+
+      test('should handle reversed bounds (swap and negate)', () => {
+        // ∫[1,0] x dx should equal -∫[0,1] x dx = -0.5
+        const result = calculator.integrate((x) => x, 1, 0);
+        expect(result).toBeCloseTo(-0.5, 3);
+      });
+
+      test('should handle negative bounds', () => {
+        // ∫[-1,1] x² dx = 2/3
+        const result = calculator.integrate((x) => x * x, -1, 1);
+        expect(result).toBeCloseTo(2/3, 3);
+      });
+
+      test('should use default interval count of 1000', () => {
+        const result1 = calculator.integrate((x) => x, 0, 1);
+        const result2 = calculator.integrate((x) => x, 0, 1, 1000);
+        expect(result1).toBe(result2);
+      });
+
+      test('should allow custom interval count', () => {
+        const result = calculator.integrate((x) => x * x, 0, 1, 100);
+        expect(result).toBeCloseTo(1/3, 2);
+      });
+
+      test('should handle large bounds', () => {
+        // ∫[0,100] x dx = 5000
+        const result = calculator.integrate((x) => x, 0, 100);
+        expect(result).toBeCloseTo(5000, 1);
+      });
+    });
+
+    describe('input validation', () => {
+      test('should throw error if first parameter is not a function', () => {
+        expect(() => calculator.integrate(42, 0, 1)).toThrow('First parameter must be a function');
+        expect(() => calculator.integrate('not a function', 0, 1)).toThrow('First parameter must be a function');
+        expect(() => calculator.integrate(null, 0, 1)).toThrow('First parameter must be a function');
+        expect(() => calculator.integrate(undefined, 0, 1)).toThrow('First parameter must be a function');
+      });
+
+      test('should throw error if bounds are not finite numbers', () => {
+        expect(() => calculator.integrate((x) => x, Infinity, 1)).toThrow('Bounds must be finite numbers');
+        expect(() => calculator.integrate((x) => x, 0, Infinity)).toThrow('Bounds must be finite numbers');
+        expect(() => calculator.integrate((x) => x, NaN, 1)).toThrow('Bounds must be finite numbers');
+        expect(() => calculator.integrate((x) => x, 0, NaN)).toThrow('Bounds must be finite numbers');
+        expect(() => calculator.integrate((x) => x, 'a', 1)).toThrow('Bounds must be finite numbers');
+        expect(() => calculator.integrate((x) => x, 0, 'b')).toThrow('Bounds must be finite numbers');
+      });
+
+      test('should throw error if intervals is not a positive integer', () => {
+        expect(() => calculator.integrate((x) => x, 0, 1, 0)).toThrow('Number of intervals must be a positive integer');
+        expect(() => calculator.integrate((x) => x, 0, 1, -10)).toThrow('Number of intervals must be a positive integer');
+        expect(() => calculator.integrate((x) => x, 0, 1, 3.5)).toThrow('Number of intervals must be a positive integer');
+        expect(() => calculator.integrate((x) => x, 0, 1, 'invalid')).toThrow('Number of intervals must be a positive integer');
+      });
+
+      test('should throw error if function returns non-finite values', () => {
+        // Function that returns Infinity
+        expect(() => calculator.integrate((x) => 1/x, 0, 1)).toThrow('Function returned non-finite value');
+
+        // Function that returns NaN
+        expect(() => calculator.integrate((x) => Math.sqrt(-1), 0, 1)).toThrow('Function returned non-finite value');
+      });
+    });
+
+    describe('numerical accuracy', () => {
+      test('should improve accuracy with more intervals', () => {
+        const exact = 1/3;
+        const result100 = calculator.integrate((x) => x * x, 0, 1, 100);
+        const result1000 = calculator.integrate((x) => x * x, 0, 1, 1000);
+        const result10000 = calculator.integrate((x) => x * x, 0, 1, 10000);
+
+        const error100 = Math.abs(result100 - exact);
+        const error1000 = Math.abs(result1000 - exact);
+        const error10000 = Math.abs(result10000 - exact);
+
+        expect(error1000).toBeLessThan(error100);
+        expect(error10000).toBeLessThan(error1000);
+      });
+    });
+
+    describe('mathematical properties', () => {
+      test('linearity: ∫(f + g) should equal ∫f + ∫g', () => {
+        const f = (x) => x;
+        const g = (x) => x * x;
+        const fPlusG = (x) => f(x) + g(x);
+
+        const integralF = calculator.integrate(f, 0, 1);
+        const integralG = calculator.integrate(g, 0, 1);
+        const integralFPlusG = calculator.integrate(fPlusG, 0, 1);
+
+        expect(integralFPlusG).toBeCloseTo(integralF + integralG, 3);
+      });
+
+      test('additivity: ∫[a,c] f should equal ∫[a,b] f + ∫[b,c] f', () => {
+        const f = (x) => x * x;
+        const a = 0, b = 1, c = 2;
+
+        const integralAC = calculator.integrate(f, a, c);
+        const integralAB = calculator.integrate(f, a, b);
+        const integralBC = calculator.integrate(f, b, c);
+
+        expect(integralAC).toBeCloseTo(integralAB + integralBC, 3);
+      });
+
+      test('reversal: ∫[a,b] f should equal -∫[b,a] f', () => {
+        const f = (x) => x * x;
+        const integralAB = calculator.integrate(f, 0, 2);
+        const integralBA = calculator.integrate(f, 2, 0);
+
+        expect(integralAB).toBeCloseTo(-integralBA, 3);
+      });
+    });
+  });
+
   describe('modulo method', () => {
     describe('positive integers', () => {
       test('should calculate 10 % 3 correctly', () => {
